@@ -1,17 +1,24 @@
-package br.dcc.ufmg.rmi.proxy
+package br.dcc.ufmg.rmi.proxy;
+
+import br.dcc.ufmg.rmi.nameserver.NameServer;
 
 public class Proxy {
 
-	Proxy(Handler handler)
-	
+	NameServer _nameServer;
+
+	protected Proxy(NameServer nameServer) {
+		_nameServer = nameServer;
+	}
+
 	/*
-	 * This method is to be called after the stubs method's.
-	 * It propagate the call to the name server
+	 * This method is to be called after the stubs method's. It propagate the
+	 * call to the name server
 	 */
-	public <T> T makeRequisition(NameServer nameServer, Method method,
-			ArrayList<Object> params) {
-		//finds the nameserver and propagate the requisition
-		//return what the name server returns as value
+	public Object makeRequisition(String className, String method,
+			Object[] params) {
+		// finds the nameserver and propagate the requisition
+		// return what the name server returns as value
+		return  _nameServer.remoteInvokation(className, method, params);
 	}
 
 }

@@ -1,8 +1,14 @@
 package br.dcc.ufmg.rmi.nameserver;
 
+import br.dcc.ufmg.rmi.proxy.Proxy;
+
 public interface NameServer {
 
-	Remote lookup(String name);
-	Remote bind(String name, Remote object);
+	Proxy lookup(String name);
 	
+	Proxy bind(String name, Object object);
+
+	Object remoteInvokation(String className, String method,
+			Object[] params);
+
 }
