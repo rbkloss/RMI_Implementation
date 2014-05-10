@@ -1,5 +1,7 @@
 package br.dcc.ufmg.server;
 
+import java.rmi.RemoteException;
+
 import br.dcc.ufmg.client.Client;
 
 public interface Server {
@@ -8,6 +10,6 @@ public interface Server {
 
 	public boolean sendMessageTo(String senderName, String message);
 
-	public void close();
+	public void close() throws RemoteException;
 
 }
