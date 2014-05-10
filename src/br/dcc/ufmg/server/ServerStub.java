@@ -1,12 +1,17 @@
-package br.dcc.ufmg.rmi.nameserver;
+package br.dcc.ufmg.server;
 
 import java.rmi.RemoteException;
 
 import br.dcc.ufmg.client.ClientInt;
+import br.dcc.ufmg.rmi.nameserver.NameServer;
 import br.dcc.ufmg.rmi.proxy.Proxy;
-import br.dcc.ufmg.server.ServerInt;
 
 public class ServerStub extends Proxy implements ServerInt {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8504348455373968699L;
 
 	protected ServerStub(NameServer nameServer) {
 		super(nameServer);
@@ -15,7 +20,7 @@ public class ServerStub extends Proxy implements ServerInt {
 
 	@Override
 	public void registerClient(ClientInt client) throws RemoteException {
-		this.makeRequisition(getClass().getName(), "registerClient",
+		this.request(getClass().getName(), "registerClient",
 				new Object[] { client });
 
 		// XXX the client to be registered must be a stub, but as is,
@@ -25,18 +30,18 @@ public class ServerStub extends Proxy implements ServerInt {
 	@Override
 	public boolean sendMessageTo(String senderName, String message)
 			throws RemoteException {
-		Boolean ans = (Boolean) this.makeRequisition(getClass().getName(),
+		Boolean ans = (Boolean) this.request(getClass().getName(),
 				"sendMessageTo", new Object[] { senderName, message });
 		return ans.booleanValue();
 	}
 
 	@Override
 	public void close() throws RemoteException {
-		makeRequisition(getClass().getName(), "close", null);
+		request(getClass().getName(), "close", null);
 	}
 
 	@Override
-	public int[] getThisHostAddress() {
+	public String getThisHostAddress() {
 		// TODO Auto-generated method stub
 		return null;
 	}

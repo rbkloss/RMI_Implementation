@@ -1,13 +1,16 @@
-package br.dcc.ufmg.rmi.nameserver;
+package br.dcc.ufmg.server;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import br.dcc.ufmg.client.ClientInt;
-import br.dcc.ufmg.server.ServerInt;
 
 public class ServerImplementation implements ServerInt {
-	ArrayList<ClientInt> _clients;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9206674187728494188L;
+	ArrayList<ClientInt> _clients;//List of Client Stubs
 
 	@Override
 	public void registerClient(ClientInt client) throws RemoteException {
@@ -34,7 +37,7 @@ public class ServerImplementation implements ServerInt {
 	}
 
 	@Override
-	public int[] getThisHostAddress() {
+	public String getThisHostAddress() {
 		// TODO Auto-generated method stub
 		return null;
 	}

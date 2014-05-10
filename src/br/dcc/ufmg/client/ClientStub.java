@@ -12,10 +12,17 @@ import br.dcc.ufmg.rmi.proxy.Proxy;
 public class ClientStub extends Proxy implements ClientInt {
 	
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2818548325173650274L;
+
+	String _address;
+	/**
 	 * @param nameServer
 	 */
-	ClientStub(NameServer nameServer, String id, String hostAddress) {
-		super(nameServer);
+	ClientStub(NameServer nameServer) {
+		super(nameServer);		
+		_address = this.getThisHostAddress();
 	}
 
 	/* (non-Javadoc)
@@ -23,7 +30,7 @@ public class ClientStub extends Proxy implements ClientInt {
 	 */
 	@Override
 	public String getName() throws RemoteException {
-		return (String) makeRequisition(this.getClass().getName(), "getName", null);
+		return (String) request(this.getClass().getName(), "getName", null);
 	}
 
 	/* (non-Javadoc)
@@ -31,13 +38,12 @@ public class ClientStub extends Proxy implements ClientInt {
 	 */
 	@Override
 	public void notifyMe(String message) throws RemoteException {
-		this.makeRequisition(getName(), "notifyMe", new Object[]{message});		
+		request(getName(), "notifyMe", new Object[]{message});		
 	}
 
 	@Override
-	public int[] getThisHostAddress() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getThisHostAddress() {		
+		return _address;
 	}
 
 }
