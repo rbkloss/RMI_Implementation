@@ -6,9 +6,15 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.Socket;
 
-public class Proxy {
+public class Proxy implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9200834525936432635L;
 
 	private Socket _socket = null;
 

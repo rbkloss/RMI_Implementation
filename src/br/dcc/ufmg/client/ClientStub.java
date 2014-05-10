@@ -2,48 +2,35 @@ package br.dcc.ufmg.client;
 
 import java.rmi.RemoteException;
 
-import br.dcc.ufmg.rmi.nameserver.NameServer;
 import br.dcc.ufmg.rmi.proxy.Proxy;
 
 /**
  * @author ricardo
  *
  */
-public class ClientStub extends Proxy implements ClientInt {
-	
+public class ClientStub extends Proxy implements Client {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2818548325173650274L;
+	private static final long serialVersionUID = 3422147872694455058L;
 
-	String _address;
 	/**
 	 * @param nameServer
 	 */
-	ClientStub(NameServer nameServer) {
-		super(nameServer);		
-		_address = this.getThisHostAddress();
+	ClientStub() {
+		super();
 	}
 
-	/* (non-Javadoc)
-	 * @see br.dcc.ufmg.client.ClientInt#getName()
-	 */
 	@Override
 	public String getName() throws RemoteException {
-		return (String) request(this.getClass().getName(), "getName", null);
+		writeOnSocket("getName");
+		String ans = readObjectFromSocket().toString();
+		return ans;
 	}
 
-	/* (non-Javadoc)
-	 * @see br.dcc.ufmg.client.ClientInt#notifyMe(java.lang.String)
-	 */
 	@Override
 	public void notifyMe(String message) throws RemoteException {
-		request(getName(), "notifyMe", new Object[]{message});		
+		writeOnSocket("notifyMe");
 	}
-
-	@Override
-	public String getThisHostAddress() {		
-		return _address;
-	}
-
 }

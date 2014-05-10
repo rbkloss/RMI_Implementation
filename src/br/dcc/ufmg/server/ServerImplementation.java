@@ -1,27 +1,24 @@
 package br.dcc.ufmg.server;
 
-import java.rmi.RemoteException;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 
-import br.dcc.ufmg.client.ClientInt;
+import br.dcc.ufmg.client.Client;
 
-public class ServerImplementation implements ServerInt {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9206674187728494188L;
-	ArrayList<ClientInt> _clients;//List of Client Stubs
+public class ServerImplementation implements Server {
+
+	ArrayList<Client> _clients;// List of Client Stubs
 
 	@Override
-	public void registerClient(ClientInt client) throws RemoteException {
+	public void registerClient(Client client) {
 		_clients.add(client);
 	}
 
 	@Override
-	public boolean sendMessageTo(String senderName, String message)
-			throws RemoteException {
+	public boolean sendMessageTo(String senderName, String message) {
 		try {
-			for (ClientInt c : _clients) {
+			for (Client c : _clients) {
 				c.notifyMe(senderName + ":" + message);
 			}
 		} catch (Exception e) {
@@ -32,14 +29,30 @@ public class ServerImplementation implements ServerInt {
 	}
 
 	@Override
-	public void close() throws RemoteException {
+	public void close() {
 		System.exit(0);
 	}
 
-	@Override
-	public String getThisHostAddress() {
-		// TODO Auto-generated method stub
-		return null;
+	public void main(String[] args) {
+		if (args.length != 1) {
+			System.err.println("Usage: java MultiServer <port number>");
+			System.exit(1);
+		}
+
+		int portNumber = Integer.parseInt(args[0]);
+		boolean listening = true;
+
+		Server chatServer = new ServerImplementation();
+
+		try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+			while (listening) {
+				new MultiServerThread(serverSocket.accept(), chatServer)
+						.start();
+			}
+		} catch (IOException e) {
+			System.err.println("Could not listen on port " + portNumber);
+			System.exit(-1);
+		}
 	}
 
 }

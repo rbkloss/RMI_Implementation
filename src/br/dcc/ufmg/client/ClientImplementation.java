@@ -1,27 +1,14 @@
 package br.dcc.ufmg.client;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.rmi.RemoteException;
 import java.security.AccessControlException;
 
-import br.dcc.ufmg.rmi.nameserver.NameServer;
-import br.dcc.ufmg.server.ServerInt;
 import br.dcc.ufmg.rmi.nameserver.LocateRegistry;
+import br.dcc.ufmg.rmi.nameserver.NameServer;
+import br.dcc.ufmg.server.Server;
 
 ;
 
-public class ClientImplementation implements ClientInt {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6830495669897766499L;
-
+public class ClientImplementation implements Client {
 	String _name;
 
 	public ClientImplementation(String name) {
@@ -29,38 +16,29 @@ public class ClientImplementation implements ClientInt {
 	}
 
 	@Override
-	public String getThisHostAddress() throws UnknownHostException {
-		return (Inet4Address.getLocalHost().getHostAddress());
-	}
-
-	@Override
-	public String getName() throws RemoteException {
+	public String getName() {
 		return _name;
 	}
 
 	@Override
-	public void notifyMe(String message) throws RemoteException {
+	public void notifyMe(String message) {
 		System.out.println("Message Received:" + message);
 
 	}
 
 	public static void main(String[] args) {
 		String address = args[0];
-		int port = 1099;
-		port = Integer.parseInt(args[1]);
-		if (System.getSecurityManager() == null) {
-			System.setSecurityManager(new SecurityManager());
-		}
+		int port = Integer.parseInt(args[1]);
 		try {
 			System.out.println("Client Started");
 			NameServer nameServer = null;
 			nameServer = LocateRegistry.at(address, port);
 			System.out.println("Located Registry");
-			ServerInt serverStub = (ServerInt) nameServer.lookup("Server");
+			Server serverStub = (Server) nameServer.lookup("Server");
 
-			ClientInt client = new ClientImplementation("cl1_");
+			Client client = new ClientImplementation("cl1_");
 
-			ClientInt clientStub = new ClientStub(nameServer);
+			Client clientStub = new ClientStub();
 			nameServer.bind(args[0], clientStub);
 			System.out.println("Exported Object");
 			// Bind the remote object's stub in the registry
