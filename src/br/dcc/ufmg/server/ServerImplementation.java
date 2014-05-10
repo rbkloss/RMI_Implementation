@@ -10,6 +10,10 @@ import br.dcc.ufmg.rmi.nameserver.NameServer;
 
 public class ServerImplementation implements Server {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1725330208313977625L;
 	ArrayList<Client> _clients;// List of Client Stubs
 
 	public ServerImplementation() {
@@ -43,6 +47,7 @@ public class ServerImplementation implements Server {
 
 		int portNumber = 2021;
 		int nsPort = 2022;
+		
 		// portNumber = Integer.parseInt(args[0]);
 		boolean listening = true;
 
@@ -53,6 +58,7 @@ public class ServerImplementation implements Server {
 					+ "]");
 			NameServer ns = LocateRegistry.at("localhost", nsPort);
 			ns.bind("Server", new ServerStub("Server", "localhost", portNumber));
+			
 			while (listening) {
 				new MultiServerThread(serverSocket.accept(), chatServer)
 						.start();

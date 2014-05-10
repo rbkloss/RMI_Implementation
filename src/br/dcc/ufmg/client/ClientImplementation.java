@@ -4,11 +4,7 @@ import java.security.AccessControlException;
 
 import br.dcc.ufmg.rmi.nameserver.LocateRegistry;
 import br.dcc.ufmg.rmi.nameserver.NameServer;
-import br.dcc.ufmg.rmi.proxy.Stub;
-import br.dcc.ufmg.rmi.remote.RemoteHandler;
 import br.dcc.ufmg.server.Server;
-
-;
 
 public class ClientImplementation implements Client {
 	/**
@@ -34,7 +30,7 @@ public class ClientImplementation implements Client {
 
 	public static void main(String[] args) {
 		String address = "localhost";
-		int port = 2022;
+		int nsPort = 2022;
 		String endPointName = "Server";
 
 		// String address = args[0];
@@ -42,15 +38,12 @@ public class ClientImplementation implements Client {
 		try {
 			System.out.println("Client Started");
 			NameServer nameServer = null;
-			nameServer = LocateRegistry.at(address, port);
+			nameServer = LocateRegistry.at(address, nsPort);
 			System.out.println("Located Registry");
 			Server serverStub = (Server) nameServer.lookup(endPointName);
 
 			Client client = new ClientImplementation("cl1_");
-			Client clientStub = new ClientStub(address, address, port);
-
-			RemoteHandler.exportObject(client, (Stub) clientStub, endPointName,
-					port);
+			Client clientStub = new ClientStub(address, address, nsPort);
 
 			System.out.println("Registering Client");
 			serverStub.registerClient(clientStub);

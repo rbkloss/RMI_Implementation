@@ -3,8 +3,9 @@ package br.dcc.ufmg.server;
 import java.rmi.RemoteException;
 
 import br.dcc.ufmg.client.Client;
+import br.dcc.ufmg.rmi.remote.Remote;
 
-public interface Server {
+public interface Server extends Remote {
 
 	public void registerClient(Client client);
 

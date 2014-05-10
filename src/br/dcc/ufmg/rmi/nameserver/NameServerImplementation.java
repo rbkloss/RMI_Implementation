@@ -9,6 +9,10 @@ import br.dcc.ufmg.rmi.proxy.Stub;
 
 public class NameServerImplementation implements NameServer {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8027715853384336753L;
 	Map<String, Stub> _stubs;
 	Map<String, Integer> _ClientPortMap;
 
@@ -20,7 +24,6 @@ public class NameServerImplementation implements NameServer {
 	@Override
 	public Stub lookup(String name) {
 		Stub p = _stubs.get(name);
-
 		return p;
 	}
 

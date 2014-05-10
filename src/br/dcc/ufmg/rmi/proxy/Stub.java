@@ -9,13 +9,9 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
 
-import br.dcc.ufmg.rmi.nameserver.LocateRegistry;
-import br.dcc.ufmg.rmi.nameserver.NameServer;
-
 public abstract class Stub implements Serializable {
 
 	String _name;
-	final NameServer ns;
 
 	/**
 	 * 
@@ -33,12 +29,11 @@ public abstract class Stub implements Serializable {
 	final private String _address;
 
 	final private int _port;
-	protected Stub(String name, String nsAddress, int nsPort)
-			throws ClassNotFoundException, IOException {
+
+	protected Stub(String name, String address, int port) {
 		_name = name;
-		ns = LocateRegistry.at(nsAddress, nsPort);
-		_address = nsAddress;
-		_port = ns.lookupPort(name);
+		_address = address;
+		_port = port;
 	}
 
 	@Override
@@ -107,7 +102,6 @@ public abstract class Stub implements Serializable {
 
 		if (_socket == null) {
 			try {
-
 				System.out.println("Creating Socket at [" + _address + "]"
 						+ " port [" + _port + "]");
 

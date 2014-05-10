@@ -3,7 +3,9 @@ package br.dcc.ufmg.client;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 
-public interface Client extends Serializable {
+import br.dcc.ufmg.rmi.remote.Remote;
+
+public interface Client extends Serializable, Remote {
 
 	/**
 	 * 

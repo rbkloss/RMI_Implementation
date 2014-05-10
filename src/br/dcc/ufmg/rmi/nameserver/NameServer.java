@@ -1,8 +1,9 @@
 package br.dcc.ufmg.rmi.nameserver;
 
 import br.dcc.ufmg.rmi.proxy.Stub;
+import br.dcc.ufmg.rmi.remote.Remote;
 
-public interface NameServer {
+public interface NameServer extends Remote {
 	public Stub lookup(String name);
 
 	public int lookupPort(String name);
