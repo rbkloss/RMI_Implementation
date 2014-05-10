@@ -4,11 +4,17 @@ import java.security.AccessControlException;
 
 import br.dcc.ufmg.rmi.nameserver.LocateRegistry;
 import br.dcc.ufmg.rmi.nameserver.NameServer;
+import br.dcc.ufmg.rmi.proxy.Stub;
+import br.dcc.ufmg.rmi.remote.RemoteHandler;
 import br.dcc.ufmg.server.Server;
 
 ;
 
 public class ClientImplementation implements Client {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6863896539159512011L;
 	String _name;
 
 	public ClientImplementation(String name) {
@@ -27,25 +33,33 @@ public class ClientImplementation implements Client {
 	}
 
 	public static void main(String[] args) {
-		String address = args[0];
-		int port = Integer.parseInt(args[1]);
+		String address = "localhost";
+		int port = 2022;
+		String endPointName = "Server";
+
+		// String address = args[0];
+		// int port = Integer.parseInt(args[1]);
 		try {
 			System.out.println("Client Started");
 			NameServer nameServer = null;
 			nameServer = LocateRegistry.at(address, port);
 			System.out.println("Located Registry");
-			Server serverStub = (Server) nameServer.lookup("Server");
+			Server serverStub = (Server) nameServer.lookup(endPointName);
 
 			Client client = new ClientImplementation("cl1_");
+			Client clientStub = new ClientStub(address, address, port);
 
-			Client clientStub = new ClientStub();
-			nameServer.bind(args[0], clientStub);
-			System.out.println("Exported Object");
-			// Bind the remote object's stub in the registry
+			RemoteHandler.exportObject(client, (Stub) clientStub, endPointName,
+					port);
 
-			serverStub.registerClient(client);
+			System.out.println("Registering Client");
+			serverStub.registerClient(clientStub);
+			System.out.println("Client Registered");
+
 			serverStub.sendMessageTo(client.getName(), "lorem ipsum");
+			System.out.println("Sending Message");
 
+			serverStub.close();
 			System.exit(0);
 		} catch (AccessControlException ex) {
 			System.err.println("Server exception: " + ex.toString());

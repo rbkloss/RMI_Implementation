@@ -1,4 +1,4 @@
-package br.dcc.ufmg.server;
+package br.dcc.ufmg.rmi.remote;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,22 +10,50 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 
-public class MultiServerThread extends Thread {
-	private Socket socket = null;
-	private Server chatServer = null;
+import br.dcc.ufmg.rmi.nameserver.LocateRegistry;
+import br.dcc.ufmg.rmi.nameserver.NameServer;
+import br.dcc.ufmg.rmi.proxy.Stub;
 
-	public MultiServerThread(Socket socket, Server chatServer) {
-		super("MultiServerThread");
-		this.socket = socket;
-		this.chatServer = chatServer;
+public class RemoteHandler extends Thread {
 
+	final Object _o;
+	final Stub _stub;
+
+	final String _address;
+	final String _serverName;
+	final int _RegistryPort;
+
+	RemoteHandler(Object o, Stub stub, String serverName, String address,
+			int port) {
+		_o = o;
+		_stub = stub;
+		_RegistryPort = port;
+		_address = address;
+		_serverName = serverName;
 	}
 
+	public static void exportObject(Object o, Stub stub, String serverName,
+			int port) {
+		new RemoteHandler(o, stub, serverName, "localhost", port).start();
+	}
+
+	@Override
 	public void run() {
 		Method m = null;
 		Object[] params = null;
 		String inputLine = null;
-		try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		NameServer ns = null;
+		try {
+			ns = LocateRegistry.at("localhost", _RegistryPort);
+		} catch (ClassNotFoundException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		int serverPort = ns.lookupPort(_serverName);
+
+		try (Socket socket = new Socket(_address, serverPort);
+				PrintWriter out = new PrintWriter(socket.getOutputStream(),
+						true);
 				BufferedReader in = new BufferedReader(new InputStreamReader(
 						socket.getInputStream()));
 				ObjectOutputStream objOut = new ObjectOutputStream(
@@ -33,8 +61,7 @@ public class MultiServerThread extends Thread {
 				ObjectInputStream objIn = new ObjectInputStream(
 						socket.getInputStream());) {
 
-			Class<?> c = chatServer.getClass();
-
+			Class<?> c = _o.getClass();
 			System.out.println("Waiting for Response");
 			while ((inputLine = in.readLine()) != null) {
 				System.out.println("Requisition message is :[" + inputLine
@@ -46,9 +73,9 @@ public class MultiServerThread extends Thread {
 				for (Method method : ms) {
 					m = method;
 					if (m.getName().equalsIgnoreCase(inputLine)) {
-						System.out.println("Executing method [" + m.getName()
+						System.out.println("Invoking method [" + m.getName()
 								+ "]");
-						ans = m.invoke(chatServer, params);
+						ans = m.invoke(_o, params);
 					}
 				}
 				if (ans == null) {
@@ -78,5 +105,6 @@ public class MultiServerThread extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 }

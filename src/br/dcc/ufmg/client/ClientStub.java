@@ -1,14 +1,14 @@
 package br.dcc.ufmg.client;
 
-import java.rmi.RemoteException;
+import java.io.IOException;
 
-import br.dcc.ufmg.rmi.proxy.Proxy;
+import br.dcc.ufmg.rmi.proxy.Stub;
 
 /**
  * @author ricardo
  *
  */
-public class ClientStub extends Proxy implements Client {
+public class ClientStub extends Stub implements Client {
 
 	/**
 	 * 
@@ -17,20 +17,22 @@ public class ClientStub extends Proxy implements Client {
 
 	/**
 	 * @param nameServer
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
-	ClientStub() {
-		super();
+	ClientStub(String name, String nsAddress, int nsPort)
+			throws ClassNotFoundException, IOException {
+		super(name, nsAddress, nsPort);
 	}
 
 	@Override
-	public String getName() throws RemoteException {
-		writeOnSocket("getName");
-		String ans = readObjectFromSocket().toString();
+	public String getName() {
+		String ans = (String) invoke("getName", new Object[] {});
 		return ans;
 	}
 
 	@Override
-	public void notifyMe(String message) throws RemoteException {
-		writeOnSocket("notifyMe");
+	public void notifyMe(String message) {
+		invoke("notifyMe", new Object[] { message });
 	}
 }

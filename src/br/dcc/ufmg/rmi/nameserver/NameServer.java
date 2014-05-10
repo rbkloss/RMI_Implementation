@@ -1,11 +1,13 @@
 package br.dcc.ufmg.rmi.nameserver;
 
-import br.dcc.ufmg.rmi.proxy.Proxy;
+import br.dcc.ufmg.rmi.proxy.Stub;
 
 public interface NameServer {
-	public Proxy lookup(String name);
+	public Stub lookup(String name);
 
-	public Proxy bind(String name, Object object);
+	public int lookupPort(String name);
+
+	public Stub bind(String name, Object object);
 
 }
 

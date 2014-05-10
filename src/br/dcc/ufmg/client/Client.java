@@ -1,15 +1,16 @@
 package br.dcc.ufmg.client;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 
-public interface Client {
+public interface Client extends Serializable {
 
 	/**
 	 * 
 	 * @return The name of the instance of this class.
 	 * @throws RemoteException
 	 */
-	String getName() throws RemoteException;
+	String getName();
 
 	/**
 	 * Method for callback. This method is called by the server to notify this
@@ -19,5 +20,5 @@ public interface Client {
 	 *            the new message it received
 	 * @throws RemoteException
 	 */
-	void notifyMe(String message) throws RemoteException;
+	void notifyMe(String message);
 }

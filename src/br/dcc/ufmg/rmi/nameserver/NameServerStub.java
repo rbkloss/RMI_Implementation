@@ -1,41 +1,36 @@
 package br.dcc.ufmg.rmi.nameserver;
 
-import br.dcc.ufmg.rmi.proxy.Proxy;
+import java.io.IOException;
 
-public class NameServerStub extends Proxy implements NameServer {
-	public NameServerStub(String address, int port) {
-		setAddress(address);
-		setPort(port);
+import br.dcc.ufmg.rmi.proxy.Stub;
+
+public class NameServerStub extends Stub implements NameServer {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7632063024427358347L;
+
+	public NameServerStub(String name, String address, int port)
+			throws ClassNotFoundException, IOException {
+		super(name, address, port);
 	}
 
 	@Override
-	public Proxy lookup(String name) {
-		Object[] params = null;
-		params = new Object[1];
-		params[0] = name;
-		Proxy ans = null;
-
-		writeOnSocket("lookup");
-		writeOnSocket(params);
-		ans = (Proxy) readObjectFromSocket();
-
+	public Stub lookup(String name) {
+		Stub ans = null;
+		ans = (Stub) invoke("lookup", new Object[] { name });
 		return ans;
 	}
 
 	@Override
-	public Proxy bind(String name, Object object) {
-
-		Object[] params = null;
-		params = new Object[2];
-		params[0] = name;
-		params[1] = object;
-		Proxy ans = null;
-
-		writeOnSocket("bind");
-		writeOnSocket(params);
-		ans = (Proxy) readObjectFromSocket();
-
+	public Stub bind(String name, Object object) {
+		Stub ans = (Stub) invoke("bind", new Object[] { name, object });
 		return ans;
 	}
 
+	@Override
+	public int lookupPort(String name) {
+		int ans = (int) invoke("lookupPort", new Object[] { name });
+		return ans;
+	}
 }

@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import br.dcc.ufmg.rmi.proxy.Proxy;
+import br.dcc.ufmg.rmi.proxy.Stub;
 
 public class NameServerStubThread extends Thread {
 
@@ -31,22 +31,32 @@ public class NameServerStubThread extends Thread {
 						_client.getInputStream());) {
 			String inputLine;
 
+			System.out.println("Waiting Request");
 			while ((inputLine = in.readLine()) != null) {
+				System.out.println("Received Request [" + inputLine + "]");
 				Object[] params = (Object[]) objIn.readObject();
+				System.out.println("Received params");
 				if (inputLine.equals("bind")) {
 					String name = params[0].toString();
-					Proxy ans = _ns.bind(name, params[1]);
+					Stub ans = _ns.bind(name, params[1]);
 
-					objOut.writeObject(new Object[] { ans });
-
+					objOut.writeObject(ans);
+					objOut.flush();
 				} else if (inputLine.equals("lookup")) {
 					String name = params[0].toString();
-					Proxy ans = _ns.lookup(name);
+					Stub ans = _ns.lookup(name);
 
-					objOut.writeObject(new Object[] { ans });
+					objOut.writeObject(ans);
+					objOut.flush();
+				} else if (inputLine.equals("lookupPort")) {
+					String name = params[0].toString();
+					int ans = _ns.lookupPort(name);
 
+					objOut.writeObject(ans);
+					objOut.flush();
 				}
 
+				System.out.println("Waiting Request");
 			}
 			_client.close();
 		} catch (IOException e) {

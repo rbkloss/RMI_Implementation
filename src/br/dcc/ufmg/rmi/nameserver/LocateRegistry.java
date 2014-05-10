@@ -1,41 +1,29 @@
 package br.dcc.ufmg.rmi.nameserver;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LocateRegistry {
-	static Socket _s;
+
+	static LocateRegistry lr = null;
+	Map<String, NameServer> nsMap = null;
+
+	private LocateRegistry() {
+		super();
+		nsMap = new HashMap<String, NameServer>();
+	}
 
 	public static NameServer at(String address, int port) throws IOException,
 			ClassNotFoundException {
-		boolean fail = false;
-		try {
-			_s = new Socket(address, port);
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail = true;
-		} finally {
-			if (fail) {
-				return null;
-			}
-
+		if (lr == null) {
+			lr = new LocateRegistry();
 		}
-		PrintWriter pw = new PrintWriter(_s.getOutputStream(), true);
-		pw.println("new");
-
-		InputStream is = _s.getInputStream();
-		ObjectInputStream ois = new ObjectInputStream(is);
-		NameServer ns = (NameServer) ois.readObject();
-		ois.close();
-		is.close();
+		NameServer ns = lr.nsMap.get(address + port);
+		if (ns == null) {
+			ns = new NameServerStub("NameServer", address, port);
+			lr.nsMap.put(address + port, ns);
+		}
 		return ns;
 	}
-
-	public static void close() throws IOException {
-		_s.close();
-	}
-
 }

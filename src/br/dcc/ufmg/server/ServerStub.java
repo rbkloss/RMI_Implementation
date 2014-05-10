@@ -1,9 +1,16 @@
 package br.dcc.ufmg.server;
 
-import br.dcc.ufmg.client.Client;
-import br.dcc.ufmg.rmi.proxy.Proxy;
+import java.io.IOException;
 
-public class ServerStub extends Proxy implements Server {
+import br.dcc.ufmg.client.Client;
+import br.dcc.ufmg.rmi.proxy.Stub;
+
+public class ServerStub extends Stub implements Server {
+
+	public ServerStub(String name, String address, int port)
+			throws ClassNotFoundException, IOException {
+		super(name, address, port);
+	}
 
 	/**
 	 * 
@@ -12,22 +19,19 @@ public class ServerStub extends Proxy implements Server {
 
 	@Override
 	public void registerClient(Client client) {
-		writeOnSocket("registerClient");
+		invoke("registerClient", new Object[] { client });
 	}
 
 	@Override
 	public boolean sendMessageTo(String senderName, String message) {
-		writeOnSocket("sendMessage");
-		Object[] params = new Object[] { senderName, message };
-		writeOnSocket(params);
-		boolean ans = ((Boolean) readObjectFromSocket()).booleanValue();
+		boolean ans = (boolean) invoke("sendMessageTo", new Object[] {
+				senderName, message });
 
 		return ans;
 	}
 
 	@Override
 	public void close() {
-		writeOnSocket("close");
+		invoke("close", new Object[] {});
 	}
-
 }
