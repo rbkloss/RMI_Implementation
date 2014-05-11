@@ -1,11 +1,8 @@
 package br.dcc.ufmg.rmi.proxy;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
 
@@ -19,15 +16,10 @@ public abstract class Stub implements Serializable {
 	private static final long serialVersionUID = -9200834525936432635L;
 
 	private Socket _socket = null;
-
-	private PrintWriter _out = null;
-
-	private BufferedReader _in = null;
 	private ObjectInputStream _objIn = null;
-
 	private ObjectOutputStream _objOut = null;
-	final private String _address;
 
+	final private String _address;
 	final private int _port;
 
 	protected Stub(String name, String address, int port) {
@@ -39,8 +31,6 @@ public abstract class Stub implements Serializable {
 	@Override
 	public void finalize() {
 		try {
-			_in.close();
-			_out.close();
 			_objIn.close();
 			_objOut.close();
 
@@ -61,8 +51,7 @@ public abstract class Stub implements Serializable {
 
 	public Object invoke(String methodName, Object params[]) {
 		System.out.println("Invoking method [" + methodName + "]");
-		writeOnSocket(methodName);
-		writeOnSocket(params);
+		writeOnSocket(new Object[] { methodName, params });
 		System.out.println("Waiting Response from server");
 		Object ans = readObjectFromSocket();
 		return ans;
@@ -72,23 +61,14 @@ public abstract class Stub implements Serializable {
 		Object ans = null;
 		if (socketReady()) {
 			try {
+				System.out.println(("Reading from Port: " + _socket.getPort()));
+				if (_objIn == null) {
+					_objIn = new ObjectInputStream(_socket.getInputStream());
+				}
 				ans = _objIn.readObject();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return ans;
-	}
-
-	public String readStringFromSocket() {
-		String ans = null;
-		if (socketReady()) {
-			try {
-				ans = _in.readLine();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -104,15 +84,7 @@ public abstract class Stub implements Serializable {
 			try {
 				System.out.println("Creating Socket at [" + _address + "]"
 						+ " port [" + _port + "]");
-
 				_socket = new Socket(_address, _port);
-				_out = new PrintWriter(_socket.getOutputStream(), true);
-				_in = new BufferedReader(new InputStreamReader(
-						_socket.getInputStream()));
-
-				_objIn = new ObjectInputStream(_socket.getInputStream());
-				_objOut = new ObjectOutputStream(_socket.getOutputStream());
-
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -133,6 +105,10 @@ public abstract class Stub implements Serializable {
 	public void writeOnSocket(Object o) {
 		if (socketReady()) {
 			try {
+				if (_objOut == null) {
+					_objOut = new ObjectOutputStream(_socket.getOutputStream());
+				}
+				System.out.println(("Writing at Port: " + _socket.getPort()));
 				_objOut.writeObject(o);
 				_objOut.flush();
 			} catch (IOException e) {
@@ -140,11 +116,4 @@ public abstract class Stub implements Serializable {
 			}
 		}
 	}
-
-	public void writeOnSocket(String s) {
-		if (socketReady()) {
-			_out.println(s);
-		}
-	}
-
 }

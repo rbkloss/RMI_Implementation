@@ -9,7 +9,7 @@ import br.dcc.ufmg.rmi.nameserver.LocateRegistry;
 import br.dcc.ufmg.rmi.nameserver.NameServer;
 
 public class ServerImplementation implements Server {
-
+	boolean _listening = true;
 	/**
 	 * 
 	 */
@@ -22,12 +22,11 @@ public class ServerImplementation implements Server {
 
 	@Override
 	public void registerClient(Client client) {
-		_clients.add(client);
-		client.notifyMe("Connected");
+		_clients.add(client);		
 	}
 
 	@Override
-	public boolean sendMessageTo(String senderName, String message) {
+	public boolean sendMessage(String senderName, String message) {
 		for (Client c : _clients) {
 			c.notifyMe(senderName + ":" + message);
 		}
@@ -35,8 +34,22 @@ public class ServerImplementation implements Server {
 	}
 
 	@Override
+	public int getPort() {
+		return 0;
+	}
+
+	@Override
+	public String getAddress() {
+		return "";
+	}
+
+	@Override
 	public void close() {
-		System.exit(0);
+		_listening = false;
+	}
+
+	public boolean isListening() {
+		return _listening;
 	}
 
 	static public void main(String[] args) {
@@ -45,27 +58,26 @@ public class ServerImplementation implements Server {
 		// System.exit(1);
 		// }
 
-		int portNumber = 2021;
+		int myPort = 2021;
 		int nsPort = 2022;
-		
+
 		// portNumber = Integer.parseInt(args[0]);
-		boolean listening = true;
 
 		Server chatServer = new ServerImplementation();
 
-		try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
-			System.out.println("ChatServer is running on port [" + portNumber
+		try (ServerSocket serverSocket = new ServerSocket(myPort)) {
+			System.out.println("ChatServer is running on port [" + myPort
 					+ "]");
 			NameServer ns = LocateRegistry.at("localhost", nsPort);
-			ns.bind("Server", new ServerStub("Server", "localhost", portNumber));
-			
-			while (listening) {
-				new MultiServerThread(serverSocket.accept(), chatServer)
-						.start();
+			ns.bind("Server", new ServerStub("Server", "localhost", myPort));
+
+			while (((ServerImplementation) chatServer).isListening()) {
+				new MultiServerThread(serverSocket.accept(),
+						(Server) chatServer).start();
 				System.out.println("Client Connected to chatServer");
 			}
 		} catch (IOException e) {
-			System.err.println("Could not listen on port " + portNumber);
+			System.err.println("Could not listen on port " + myPort);
 			System.exit(-1);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

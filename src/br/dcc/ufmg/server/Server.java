@@ -9,8 +9,12 @@ public interface Server extends Remote {
 
 	public void registerClient(Client client);
 
-	public boolean sendMessageTo(String senderName, String message);
+	public boolean sendMessage(String senderName, String message);
 
 	public void close() throws RemoteException;
+
+	public int getPort();
+
+	public String getAddress();
 
 }

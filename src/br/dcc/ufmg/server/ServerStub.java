@@ -1,6 +1,5 @@
 package br.dcc.ufmg.server;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 
 import br.dcc.ufmg.client.Client;
@@ -8,8 +7,7 @@ import br.dcc.ufmg.rmi.proxy.Stub;
 
 public class ServerStub extends Stub implements Server {
 
-	public ServerStub(String name, String address, int port)
-			throws ClassNotFoundException, IOException {
+	public ServerStub(String name, String address, int port) {
 		super(name, address, port);
 	}
 
@@ -23,8 +21,8 @@ public class ServerStub extends Stub implements Server {
 		invoke("registerClient", new Object[] { client });
 	}
 
-	public boolean sendMessageTo(String senderName, String message) {
-		boolean ans = (boolean) invoke("sendMessageTo", new Object[] {
+	public boolean sendMessage(String senderName, String message) {
+		boolean ans = (boolean) invoke("sendMessage", new Object[] {
 				senderName, message });
 		return ans;
 	}
