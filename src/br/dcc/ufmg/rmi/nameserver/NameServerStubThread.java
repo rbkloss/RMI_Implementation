@@ -30,11 +30,16 @@ public class NameServerStubThread extends Thread {
 				ObjectInputStream objIn = new ObjectInputStream(
 						_client.getInputStream());) {
 			String inputLine;
+			Object[] input;
+			Object[] params;
 
 			System.out.println("Waiting Request");
-			while ((inputLine = in.readLine()) != null) {
-				System.out.println("Received Request [" + inputLine + "]");
-				Object[] params = (Object[]) objIn.readObject();
+			while ((input = (Object[]) objIn.readObject()) != null) {
+				inputLine = (String) input[0];
+				System.out.println("Requisition message is :[" + inputLine
+						+ "]");
+				System.out.println("Waiting for params");
+				params = (Object[]) input[1];
 				System.out.println("Received params");
 				if (inputLine.equals("bind")) {
 					String name = params[0].toString();

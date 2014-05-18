@@ -1,11 +1,8 @@
 package br.dcc.ufmg.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
@@ -25,23 +22,19 @@ public class MultiServerThread extends Thread {
 		Method m = null;
 		Object[] params = null;
 		String inputLine = null;
-		try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-				BufferedReader in = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
-				ObjectOutputStream objOut = new ObjectOutputStream(
-						socket.getOutputStream());
+		try (ObjectOutputStream objOut = new ObjectOutputStream(
+				socket.getOutputStream());
 				ObjectInputStream objIn = new ObjectInputStream(
 						socket.getInputStream());) {
-
-			Class<?> c = chatServer.getClass();
-
+			Object[] input;
+			Method[] ms = chatServer.getClass().getDeclaredMethods();
 			System.out.println("Waiting for Response");
-			while ((inputLine = in.readLine()) != null) {
+			while ((input = (Object[]) objIn.readObject()) != null) {
+				inputLine = (String) input[0];
 				System.out.println("Requisition message is :[" + inputLine
 						+ "]");
 				System.out.println("Waiting for params");
-				params = (Object[]) objIn.readObject();
-				Method[] ms = c.getDeclaredMethods();
+				params = (Object[]) input[1];
 				Object ans = null;
 				for (Method method : ms) {
 					m = method;
@@ -49,12 +42,12 @@ public class MultiServerThread extends Thread {
 						System.out.println("Executing method [" + m.getName()
 								+ "]");
 						ans = m.invoke(chatServer, params);
+						if (ans == null) {
+							objOut.writeObject(new Object[] {});
+						} else {
+							objOut.writeObject(ans);
+						}
 					}
-				}
-				if (ans == null) {
-					objOut.writeObject(new Object[] {});
-				} else {
-					objOut.writeObject(ans);
 				}
 				objOut.flush();
 				System.out.println("Waiting for Response");
